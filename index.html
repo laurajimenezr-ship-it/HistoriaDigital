@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Presentación interactiva sobre Colón Llamas y Picón Rodríguez (2022): digitalizar, georreferenciar y visualizar la Bogotá de 1894. Historia Digital 2026-2, Universidad Nacional de Colombia.">
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Bogotá, 1894</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,700;1,6..96,500&family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a surveyor's plan folded into seven plates; each plate is one argument of the reading, read top to bottom or stepped with the keyboard while projecting. */
+:root{
+  --paper:#ECEEE8;      /* sized map paper, cool */
+  --sheet:#F7F8F4;      /* plate surface */
+  --ink:#22252A;        /* iron-gall ink */
+  --ink-soft:#5A606A;
+  --rule:#C9CDC4;
+  --prusia:#24476B;     /* Prussian blue, map ink */
+  --lindero:#B0333F;    /* carmine boundary line of cadastral plans */
+  --s0:#E3E8EE; --s1:#BCCADB; --s2:#8AA3C0; --s3:#57779D; --s4:#2F5279; --s5:#18324F;
+  --on-dark:#F7F8F4;
+  --display:"Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
+  --body:"Spectral", Georgia, "Times New Roman", serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#14171B; --sheet:#1B1F25; --ink:#E6E8E3; --ink-soft:#A3AAB4; --rule:#343A43;
+  --prusia:#8FB3DA; --lindero:#E0707A;
+  --s0:#232A33; --s1:#2C4560; --s2:#3B6189; --s3:#5583B3; --s4:#7FA8D3; --s5:#B9D2EC;
+  --on-dark:#14171B; color-scheme:dark; } }
+:root[data-theme="dark"]{
+  --paper:#14171B; --sheet:#1B1F25; --ink:#E6E8E3; --ink-soft:#A3AAB4; --rule:#343A43;
+  --prusia:#8FB3DA; --lindero:#E0707A;
+  --s0:#232A33; --s1:#2C4560; --s2:#3B6189; --s3:#5583B3; --s4:#7FA8D3; --s5:#B9D2EC;
+  --on-dark:#14171B; color-scheme:dark; }
+
+*{box-sizing:border-box}
+body{background:var(--paper); color:var(--ink); font-family:var(--body); font-size:1.05rem; line-height:1.55;
+  padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); padding-block:0 3rem;}
+h1,h2,h3{font-family:var(--display); font-weight:500; text-wrap:balance; margin:0}
+p{margin:0}
+.wrap{max-width:68rem; margin:0 auto}
+.lab{font-family:var(--mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft)}
+a{color:var(--prusia)}
+button{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--lindero); outline-offset:3px}
+
+/* top bar */
+.bar{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--paper); border-bottom:1px solid var(--rule);
+  display:flex; align-items:center; gap:1rem; padding-block:.6rem; margin-inline:calc(-1 * max(16px, env(safe-area-inset-left,0px)));
+  padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px));}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--paper)}
+.bar .t{font-family:var(--display); font-style:italic; font-size:1.05rem}
+.bar nav{display:flex; gap:.35rem; margin-left:auto; flex-wrap:wrap}
+.bar nav a{font-family:var(--mono); font-size:.72rem; text-decoration:none; color:var(--ink-soft); border:1px solid var(--rule); padding:.15rem .45rem; border-radius:2px}
+.bar nav a.on{color:var(--sheet); background:var(--prusia); border-color:var(--prusia)}
+.bar .fs{font-family:var(--mono); font-size:.72rem; background:none; border:1px solid var(--rule); padding:.15rem .5rem; border-radius:2px; cursor:pointer}
+@media (max-width:640px){ .bar nav{display:none} }
+
+/* plates */
+.plate{background:var(--sheet); border:1px solid var(--rule); margin-top:2rem; padding:clamp(1.25rem,3.5vw,3rem); position:relative; scroll-margin-top:4rem}
+.plate::before{content:attr(data-n); position:absolute; top:.7rem; right:1rem; font-family:var(--mono); font-size:.7rem; color:var(--ink-soft); letter-spacing:.1em}
+.plate h2{font-size:clamp(1.8rem,4vw,2.9rem); line-height:1.08; margin:.4rem 0 1rem}
+.lead{max-width:38rem; color:var(--ink); font-size:1.12rem}
+.cols{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); gap:clamp(1.5rem,4vw,3.5rem); align-items:start}
+@media (max-width:820px){ .cols{grid-template-columns:minmax(0,1fr)} }
+
+/* hero */
+.hero{border-top:4px solid var(--lindero)}
+.hero h1{font-size:clamp(2.8rem,8vw,6.2rem); line-height:.95; letter-spacing:-.01em; margin:.6rem 0 1rem}
+.hero h1 em{font-style:italic; color:var(--prusia)}
+.quote{border-left:2px solid var(--lindero); padding-left:1.1rem; max-width:44rem; font-style:italic; font-size:1.15rem}
+.quote cite{display:block; margin-top:.5rem; font-style:normal; font-family:var(--mono); font-size:.72rem; color:var(--ink-soft); letter-spacing:.05em}
+.ref{margin-top:1.5rem; font-size:.9rem; color:var(--ink-soft); max-width:44rem}
+
+/* population */
+.pop{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem}
+.pop figure{margin:0}
+.pop svg{width:100%; height:auto; display:block}
+.pop figcaption{display:flex; justify-content:space-between; align-items:baseline; margin-top:.4rem; gap:.5rem}
+.pop .yr{font-family:var(--display); font-size:1.6rem}
+.pop .n{font-family:var(--mono); font-size:.85rem; font-variant-numeric:tabular-nums}
+
+/* sources */
+.sources{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; margin-top:1.5rem}
+@media (max-width:820px){ .sources{grid-template-columns:minmax(0,1fr)} }
+.src{border:1px solid var(--rule); padding:1rem 1.1rem 1.2rem; display:flex; flex-direction:column; gap:.5rem; background:var(--paper)}
+.src .yr{font-family:var(--display); font-size:2.1rem; line-height:1; color:var(--prusia)}
+.src h3{font-size:1.2rem}
+.src p{font-size:.95rem; color:var(--ink-soft)}
+.src .gives{font-family:var(--mono); font-size:.72rem; color:var(--lindero); letter-spacing:.06em; text-transform:uppercase; margin-top:auto; padding-top:.4rem; border-top:1px dashed var(--rule)}
+.tally{display:flex; flex-wrap:wrap; gap:2rem; margin-top:1.6rem; align-items:baseline}
+.tally b{font-family:var(--display); font-size:2.6rem; font-weight:500; color:var(--prusia); font-variant-numeric:tabular-nums}
+.tally span{display:block; font-size:.9rem; color:var(--ink-soft); max-width:14rem}
+
+/* method */
+.steps{list-style:none; padding:0; margin:1.5rem 0 0; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:0; counter-reset:s}
+@media (max-width:820px){ .steps{grid-template-columns:minmax(0,1fr)} }
+.steps li{counter-increment:s; padding:1rem 1.1rem 1.2rem; border-top:2px solid var(--prusia); position:relative; display:flex; flex-direction:column; gap:.5rem}
+.steps li + li{border-left:1px solid var(--rule)}
+@media (max-width:820px){ .steps li + li{border-left:none} }
+.steps li::before{content:counter(s); font-family:var(--display); font-size:2.4rem; line-height:1; color:var(--prusia)}
+.steps li.open{border-top-color:var(--lindero)}
+.steps li.open::before{color:var(--lindero)}
+.steps h3{font-size:1.35rem}
+.steps p{font-size:.95rem}
+.tools{display:flex; flex-wrap:wrap; gap:.3rem; margin-top:auto; padding-top:.5rem}
+.tools span{font-family:var(--mono); font-size:.7rem; border:1px solid var(--rule); padding:.05rem .4rem; border-radius:2px; color:var(--ink-soft)}
+
+/* map explorer */
+.chips{display:flex; flex-wrap:wrap; gap:.35rem; margin:1rem 0 1.25rem}
+.chip{border:1px solid var(--rule); background:var(--paper); padding:.3rem .7rem; border-radius:999px; cursor:pointer; font-size:.92rem}
+.chip[aria-pressed="true"]{background:var(--prusia); border-color:var(--prusia); color:var(--sheet)}
+.chip.avaluo[aria-pressed="true"]{background:var(--lindero); border-color:var(--lindero)}
+.guess{display:flex; align-items:center; gap:.5rem; font-family:var(--mono); font-size:.75rem; color:var(--ink-soft); margin-bottom:.5rem}
+.guess button{border:1px solid var(--lindero); color:var(--lindero); background:none; padding:.25rem .6rem; border-radius:2px; cursor:pointer; font-family:var(--mono); font-size:.75rem}
+.mapbox svg{width:100%; height:auto; display:block}
+.mapbox .note{font-family:var(--mono); font-size:.7rem; color:var(--ink-soft); margin-top:.5rem}
+.parr rect{stroke:var(--lindero); stroke-width:1.6; transition:fill .35s ease}
+.parr text{font-family:var(--body); fill:var(--ink); font-size:13px; pointer-events:none}
+.parr text.v{font-family:var(--mono); font-size:15px; font-weight:500}
+.parr.dark text{fill:var(--on-dark)}
+.hidden-vals .parr text.v{opacity:0}
+.hidden-vals .bars .val{opacity:0}
+.hidden-vals .bars .fill{width:0 !important}
+.bars{display:flex; flex-direction:column; gap:.45rem}
+.bars .row{display:grid; grid-template-columns:8.5rem minmax(0,1fr) 3.4rem; align-items:center; gap:.6rem; font-size:.95rem}
+.bars .track{height:.75rem; background:var(--s0); position:relative}
+.bars .fill{position:absolute; inset:0 auto 0 0; background:var(--prusia); transition:width .45s ease}
+.bars .val{font-family:var(--mono); font-size:.82rem; text-align:right; font-variant-numeric:tabular-nums}
+.bars .row.top .fill{background:var(--lindero)}
+.explain{margin-top:1rem; font-size:1rem; max-width:34rem}
+.explain .n{font-family:var(--mono); font-size:.75rem; color:var(--ink-soft); display:block; margin-top:.35rem}
+.legend{display:flex; align-items:center; gap:.4rem; font-family:var(--mono); font-size:.68rem; color:var(--ink-soft); margin-top:.6rem; flex-wrap:wrap}
+.legend i{display:inline-block; width:1.4rem; height:.6rem}
+
+/* rule timeline */
+.tl{list-style:none; padding:0; margin:1.5rem 0 0; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem}
+@media (max-width:820px){ .tl{grid-template-columns:minmax(0,1fr)} }
+.tl li{border-top:1px solid var(--ink); padding-top:.7rem}
+.tl .y{font-family:var(--display); font-size:1.9rem; color:var(--lindero); line-height:1}
+.tl p{font-size:.95rem; margin-top:.4rem}
+
+/* close */
+.close{background:var(--prusia); color:var(--sheet); border-color:var(--prusia)}
+.close::before{color:var(--sheet); opacity:.7}
+.close .lab{color:var(--sheet); opacity:.75}
+.close h2{color:var(--sheet)}
+.close .quote{border-left-color:var(--sheet)}
+.close .quote cite{color:var(--sheet); opacity:.75}
+.close ol{margin:1.4rem 0 0; padding-left:1.3rem; display:grid; gap:.6rem; max-width:44rem}
+.foot{margin-top:2rem; font-size:.85rem; color:var(--ink-soft); max-width:50rem}
+/* georref game */
+.geo{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; margin-top:1.2rem}
+@media (max-width:760px){ .geo{grid-template-columns:minmax(0,1fr)} }
+.geo figure{margin:0; border:1px solid var(--rule); background:var(--paper); position:relative}
+.geo figure.active{outline:2px solid var(--lindero); outline-offset:-2px}
+.geo figcaption{display:flex; justify-content:space-between; gap:.5rem; padding:.45rem .7rem; border-bottom:1px solid var(--rule)}
+.geo svg{width:100%; height:auto; display:block; cursor:crosshair; touch-action:manipulation}
+.geo .old-ink{stroke:var(--ink-soft); fill:none}
+.geo .old-river{stroke:var(--prusia); fill:none; stroke-width:3; opacity:.55}
+.geo .lm{fill:var(--ink)}
+.geo .lmt{font-family:var(--display); font-style:italic; font-size:12px; fill:var(--ink)}
+.geo .newt{font-family:var(--body); font-size:11.5px; fill:var(--ink)}
+.geo .street{stroke:var(--rule); stroke-width:1}
+.geo .streetl{font-family:var(--mono); font-size:9px; fill:var(--ink-soft)}
+.geo .pin circle{fill:var(--lindero); stroke:var(--sheet); stroke-width:1.5}
+.geo .pin text{font-family:var(--mono); font-size:10px; fill:#fff; font-weight:500}
+.geo .resid{stroke:var(--lindero); stroke-width:1.5; stroke-dasharray:3 2}
+.geobar{display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; margin-top:1rem}
+.btn{border:1px solid var(--prusia); background:var(--prusia); color:var(--sheet); padding:.4rem .8rem; border-radius:2px; cursor:pointer; font-family:var(--mono); font-size:.8rem}
+.btn.ghost{background:none; color:var(--prusia)}
+.btn:disabled{opacity:.4; cursor:not-allowed}
+.status{font-size:1rem; margin-top:.9rem; min-height:1.6em}
+.status b{color:var(--lindero)}
+.opac{display:flex; align-items:center; gap:.5rem; font-family:var(--mono); font-size:.75rem; color:var(--ink-soft)}
+table.gcp{border-collapse:collapse; margin-top:.9rem; font-size:.9rem; width:100%; max-width:34rem}
+table.gcp th{font-family:var(--mono); font-size:.7rem; font-weight:500; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); text-align:left; border-bottom:1px solid var(--ink); padding:.3rem .4rem}
+table.gcp td{border-bottom:1px solid var(--rule); padding:.3rem .4rem; font-variant-numeric:tabular-nums}
+table.gcp td.num{font-family:var(--mono); text-align:right}
+table.gcp tr.bad td.num{color:var(--lindero); font-weight:500}
+.tblwrap{overflow-x:auto}
+/* bet + overlay on parish map */
+.parr.bet rect{stroke-width:4}
+.parr text.star{font-family:var(--mono); font-size:16px; fill:var(--lindero)}
+.parr.dark text.star{fill:var(--on-dark)}
+.parr.hi rect{stroke-width:5; stroke-dasharray:7 4}
+.ov{display:flex; align-items:center; gap:.4rem; font-size:.92rem; margin:-.2rem 0 .8rem}
+/* question wall */
+.wall{margin-top:1.6rem; max-width:44rem}
+.wall form{display:flex; gap:.5rem; flex-wrap:wrap}
+.wall input{flex:1 1 16rem; min-width:0; font:inherit; padding:.5rem .7rem; border:1px solid var(--sheet); background:transparent; color:var(--sheet); border-radius:2px}
+.wall input::placeholder{color:var(--sheet); opacity:.6}
+.wall .btn{background:var(--sheet); color:var(--prusia); border-color:var(--sheet)}
+.wall .btn.ghost{background:none; color:var(--sheet)}
+.wall ul{list-style:none; padding:0; margin:1rem 0 0; display:grid; gap:.5rem}
+.wall li{border-left:2px solid var(--sheet); padding:.2rem 0 .2rem .8rem; display:flex; justify-content:space-between; gap:.6rem; align-items:start}
+.wall li button{background:none; border:none; color:var(--sheet); opacity:.7; cursor:pointer; font-family:var(--mono); font-size:.75rem}
+.wall .confirm{display:flex; gap:.5rem; align-items:center; margin-top:.6rem; font-size:.9rem}
+@media (prefers-reduced-motion: reduce){ *{transition:none !important} html{scroll-behavior:auto} }
+html{scroll-behavior:smooth}
+</style>
+</head>
+<body>
+
+
+<header class="bar">
+  <span class="t">Bogotá, 1894</span>
+  <nav aria-label="Láminas">
+    <a href="#tesis">I</a><a href="#ciudad">II</a><a href="#fuentes">III</a><a href="#metodo">IV</a><a href="#georref">V</a><a href="#oficios">VI</a><a href="#norma">VII</a><a href="#taller">VIII</a>
+  </nav>
+  <button class="fs" id="fsbtn" type="button">Pantalla completa</button>
+</header>
+
+<main class="wrap">
+
+<section class="plate hero" id="tesis" data-n="LÁMINA I">
+  <div class="lab">Historia Digital 2026-2 · Sesión 8 · Mapear la historia</div>
+  <h1>El mapa como <em>argumento</em></h1>
+  <p class="lead">Una lectura de cómo se digitalizan, georreferencian y visualizan las fuentes de una ciudad para hacerle preguntas que el papel solo no deja formular.</p>
+  <blockquote class="quote" style="margin:1.6rem 0 0">
+    “La visualización y la historia espacial no son para producir ilustraciones o mapas para comunicar hallazgos que se han descubierto por otros medios, al contrario, son para hacer investigación, realizar preguntas que de otro modo no podrían ser formuladas…”
+    <cite>Richard White (2010), citado por Colón Llamas y Picón Rodríguez, p. 6</cite>
+  </blockquote>
+  <p class="ref">Colón Llamas, Luis Carlos, y Anthony Picón Rodríguez. “Digitalizar, georreferenciar, visualizar y narrar la ciudad. Usos del suelo y orden urbano: Bogotá, 1894.” <i>Territorios</i> 47 (2022). Universidad Nacional de Colombia.</p>
+</section>
+
+<section class="plate" id="ciudad" data-n="LÁMINA II">
+  <div class="lab">El problema</div>
+  <h2>Una ciudad que no crece: se llena</h2>
+  <div class="cols">
+    <div>
+      <p class="lead">Durante el siglo XIX Bogotá casi no se extendió en superficie, pero su población se multiplicó por cuatro. El resultado fue una ciudad densa, de usos mezclados y predios cada vez más subdivididos.</p>
+      <p class="lead" style="margin-top:1rem">En plena transición de un régimen colonial a uno capitalista: ¿quién vivía dónde, y qué ordenaba ese reparto?</p>
+    </div>
+    <div class="pop" aria-label="Población de Bogotá en 1801 y 1907 sobre la misma superficie">
+      <figure><svg id="pop1801" viewBox="0 0 200 200" role="img" aria-label="1801: 21.394 habitantes"></svg>
+        <figcaption><span class="yr">1801</span><span class="n">21.394 hab.</span></figcaption></figure>
+      <figure><svg id="pop1907" viewBox="0 0 200 200" role="img" aria-label="1907: 86.328 habitantes"></svg>
+        <figcaption><span class="yr">1907</span><span class="n">86.328 hab.</span></figcaption></figure>
+      <p class="lab" style="grid-column:1/-1">Un punto = 500 habitantes · misma silueta esquemática</p>
+    </div>
+  </div>
+</section>
+
+<section class="plate" id="fuentes" data-n="LÁMINA III">
+  <div class="lab">Las fuentes</div>
+  <h2>Tres documentos que, por separado, no dicen lo mismo</h2>
+  <div class="sources">
+    <article class="src"><div class="yr">1891–1894</div><h3>Plano de Bogotá, de Carlos Clavijo R.</h3>
+      <p>Versiones manuscritas de 1891 y la impresa de 1894. Las manuscritas traen más: un censo de más de 200 chicherías, casas de juego y pilas públicas.</p>
+      <div class="gives">Da el dónde</div></article>
+    <article class="src"><div class="yr">1893</div><h3>Directorio General de Bogotá, de Cupertino Salgado</h3>
+      <p>Listados alfabéticos, por calles y por oficios. Una muestra significativa de quién trabajaba y vivía en cada lugar, no un censo completo.</p>
+      <div class="gives">Da el quién</div></article>
+    <article class="src"><div class="yr">1890</div><h3>Catastro de la Provincia de Bogotá</h3>
+      <p>El registro de los bienes inmuebles, con su valor y sus características físicas.</p>
+      <div class="gives">Da el cuánto vale</div></article>
+  </div>
+  <div class="tally">
+    <div><b>+10.000</b><span>registros georreferenciados en una sola base espacial</span></div>
+    <div><b>3</b><span>semestres de cursos en la UNAL, con estudiantes de arquitectura, historia, geografía, sociología, diseño y artes</span></div>
+  </div>
+</section>
+
+<section class="plate" id="metodo" data-n="LÁMINA IV">
+  <div class="lab">El método · en el orden del artículo</div>
+  <h2>Cuatro verbos</h2>
+  <ol class="steps">
+    <li><h3>Digitalizar</h3><p>Pasar de papel a imagen. Se apoya en lo que ya hicieron bibliotecas y archivos: la Mapoteca Digital de la Biblioteca Nacional, la Cartografía Histórica de la Luis Ángel Arango, el AGN, el IGAC.</p><div class="tools"><span>Biblioteca Nacional</span><span>BLAA</span><span>AGN</span><span>IGAC</span></div></li>
+    <li><h3>Georreferenciar</h3><p>Ajustar el plano antiguo a coordenadas actuales y dibujar sobre él puntos, líneas y polígonos, cada uno con sus atributos: uso, propietario, avalúo, área.</p><div class="tools"><span>Map Warper</span><span>QGIS</span><span>EPSG 3857</span></div></li>
+    <li><h3>Visualizar</h3><p>Superponer capas para ver relaciones que en una tabla o en un texto no aparecen, y comprobar hipótesis a la vista.</p><div class="tools"><span>QGIS</span><span>GeoDa</span></div></li>
+    <li class="open"><h3>Narrar</h3><p>El reto que queda abierto: que el mapa deje de ser ilustración y sea el argumento del relato, en formatos de varias capas y medios.</p><div class="tools"><span>sesión 9 · StoryMaps</span></div></li>
+  </ol>
+  <p class="foot">El proyecto detrás: <b>Cartografías de Bogotá</b> (Escuela de Arquitectura y Urbanismo, UNAL, desde 2014), un atlas electrónico con más de 200 planos históricos de la ciudad, de finales del siglo XVIII al XX.</p>
+</section>
+
+<section class="plate" id="georref" data-n="LÁMINA V">
+  <div class="lab">Ensayo antes del taller · así funciona Map Warper por dentro</div>
+  <h2>Poner puntos de control</h2>
+  <p class="lead">Hagan clic en un lugar del plano antiguo y luego en el mismo lugar en el mapa actual. Con tres pares o más, el plano se puede deformar para encajar. Plano y posiciones son didácticos: no es el plano de Clavijo.</p>
+  <div class="geo">
+    <figure id="figOld" class="active"><figcaption><span class="lab">Plano antiguo · didáctico</span><span class="lab" id="oldHint">1 · clic aquí</span></figcaption>
+      <svg id="oldsvg" viewBox="0 0 400 400" role="img" aria-label="Plano antiguo didáctico de Bogotá"></svg></figure>
+    <figure id="figNew"><figcaption><span class="lab">Mapa actual · esquema</span><span class="lab" id="newHint"></span></figcaption>
+      <svg id="newsvg" viewBox="0 0 400 400" role="img" aria-label="Esquema del centro de Bogotá hoy"></svg></figure>
+  </div>
+  <div class="geobar">
+    <button type="button" class="btn" id="warpBtn" disabled>Deformar el plano (warp)</button>
+    <button type="button" class="btn ghost" id="undoBtn" disabled>Deshacer último punto</button>
+    <button type="button" class="btn ghost" id="resetBtn">Reiniciar</button>
+    <label class="opac" for="opac">Transparencia del plano <input type="range" id="opac" min="0" max="100" value="90"></label>
+  </div>
+  <p class="status" id="geoStatus">Paso 1: elijan un lugar que exista en los dos mapas, por ejemplo la Plaza de Bolívar.</p>
+  <div class="tblwrap"><table class="gcp" id="gcp" hidden><thead><tr><th>#</th><th>Lugar más cercano</th><th style="text-align:right">Error (px)</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<section class="plate" id="oficios" data-n="LÁMINA VI">
+  <div class="lab">Visualizar para descubrir</div>
+  <h2>¿Dónde estaban?</h2>
+  <p class="lead">Distribución por parroquia de cada grupo registrado en el Directorio de 1893. Elige un oficio. Para preguntarle primero al grupo, oculta los valores.</p>
+  <div class="chips" role="group" aria-label="Grupo a mostrar" id="chips"></div>
+  <div class="guess"><button type="button" id="guessbtn" aria-pressed="false">Ocultar valores</button><span id="guesshint">Valores visibles</span></div>
+  <label class="ov" for="ovchk"><input type="checkbox" id="ovchk"> Superponer la capa de avalúos más altos (catastro 1890)</label>
+  <div class="cols" id="explorer">
+    <div class="mapbox">
+      <svg id="map" viewBox="0 0 470 430" role="img" aria-label="Esquema de las parroquias de Bogotá"></svg>
+      <div class="legend" id="legend"></div>
+      <p class="note">Esquema de posiciones relativas, norte arriba. No es un plano a escala: es lo que sería sin georreferenciar.</p>
+    </div>
+    <div>
+      <div class="bars" id="bars"></div>
+      <p class="explain" id="explain"></p>
+    </div>
+  </div>
+</section>
+
+<section class="plate" id="norma" data-n="LÁMINA VII">
+  <div class="lab">Del mercado a la norma</div>
+  <h2>El precio del suelo ordena; la norma lo protege</h2>
+  <div class="cols">
+    <p class="lead">Los avalúos más altos del catastro de 1890 coinciden con San Pedro y San Pablo, el mismo centro donde se concentraban comerciantes y abogados. Ese orden de mercado necesitaba consolidarse, y lo hicieron las prohibiciones contra chicherías, prostitución y talleres, justificadas por la moral y la higiene.</p>
+    <blockquote class="quote">“…los altos precios de la zona central definen un principio de orden establecido por el mercado. Pero este por sí solo no podía consolidar ese orden. Tal vez por ello desde finales del siglo XIX se insistió en medidas que prohibieran algunas actividades… estaban protegiendo las zonas de más altos valores inmobiliarios…”
+      <cite>Colón Llamas y Picón Rodríguez, p. 11</cite></blockquote>
+  </div>
+  <ol class="tl">
+    <li><div class="y">1891</div><p>Los planos manuscritos de Clavijo registran más de 200 chicherías: el problema ya está cartografiado.</p></li>
+    <li><div class="y">1912–1913</div><p>Resoluciones que prohíben las chicherías en un cuadrilátero del centro, entre las carreras 4ª y 10ª y las calles 5ª y 22.</p></li>
+    <li><div class="y">→ 1947</div><p>Acuerdos sucesivos amplían la prohibición. La segregación que el mercado insinuaba queda escrita en la norma, antes de la zonificación formal.</p></li>
+  </ol>
+</section>
+
+<section class="plate close" id="taller" data-n="LÁMINA VIII">
+  <div class="lab">Para el taller</div>
+  <h2>Ahora, Map Warper</h2>
+  <blockquote class="quote" style="margin-top:1rem">“Con frecuencia olvidamos que el espacio cartográfico y el espacio histórico son algo más que espacio físico, es espacio ocupado y habitado.”
+    <cite>Colón Llamas y Picón Rodríguez, p. 10</cite></blockquote>
+  <ol>
+    <li>Cuando pongan los puntos de control, ¿qué lugares de su mapa siguen existiendo hoy y cuáles ya no?</li>
+    <li>¿Qué deformaciones aparecen al obligar al mapa antiguo a encajar en coordenadas actuales?</li>
+    <li>Una vez superpuesto: ¿qué pregunta histórica pueden hacerle al mapa que antes no podían?</li>
+  </ol>
+  <div class="wall">
+    <div class="lab" style="margin-bottom:.6rem">Muro de preguntas · anoten las de cada pareja</div>
+    <form id="wallForm" autocomplete="off">
+      <input type="text" id="wallInput" maxlength="220" placeholder="Pareja y pregunta, p. ej. Ana y Luis: ¿dónde estaban las pilas públicas?">
+      <button type="submit" class="btn">Agregar</button>
+      <button type="button" class="btn ghost" id="wallClear">Borrar todo</button>
+    </form>
+    <div class="confirm" id="wallConfirm" hidden><span>¿Borrar todas las preguntas?</span><button type="button" class="btn" id="wallYes">Sí, borrar</button><button type="button" class="btn ghost" id="wallNo">Cancelar</button></div>
+    <ul id="wallList"></ul>
+  </div>
+</section>
+
+<p class="foot">Datos de población, fuentes, porcentajes por parroquia y fechas normativas tomados de Colón Llamas y Picón Rodríguez (2022). Los porcentajes de cada grupo suman 100 % entre las ocho parroquias; n = registros del Directorio de 1893.</p>
+</main>
+
+<script>
+(function(){
+  // ---------- data (Colón Llamas y Picón Rodríguez 2022) ----------
+  const P = ["San Pablo","San Pedro","Las Nieves","Santa Bárbara","San Victorino","Egipto","Las Aguas","Las Cruces"];
+  const D = {
+    "Comerciantes":          {n:1480, v:[34.6,32.2,8.8,5.8,10.9,3.6,3.2,0.9]},
+    "Profesiones liberales": {n:904,  v:[25.8,20.1,14.9,14.3,9.3,7.0,6.1,2.5]},
+    "Abogados":              {n:299,  v:[39.8,12.0,12.0,11.7,11.0,6.5,6.0,1.0]},
+    "Oficios":               {n:2219, v:[13.2,15.0,16.5,16.1,10.5,8.2,9.6,10.9]},
+    "Fabricantes":           {n:84,   v:[20.2,17.9,13.1,14.3,16.7,3.5,6.0,8.3]},
+    "Sastres":               {n:171,  v:[17.5,26.3,14.0,10.5,8.8,11.2,9.9,1.8]},
+    "Carpinteros y ebanistas":{n:486, v:[14.0,18.7,14.2,12.1,10.9,6.5,12.3,11.3]},
+    "Costureras":            {n:408,  v:[6.4,8.1,23.8,19.1,10.0,9.0,11.8,11.8]},
+    "Albañiles":             {n:253,  v:[3.2,3.2,21.7,20.6,9.5,11.0,12.6,18.2]}
+  };
+  const NOTES = {
+    "Comerciantes":"Dos parroquias, San Pablo y San Pedro, reúnen el 66,8 % de los comerciantes.",
+    "Profesiones liberales":"San Pablo y San Pedro concentran el 45,9 % de las profesiones liberales.",
+    "Abogados":"El 51,8 % de los abogados está en San Pablo y San Pedro; solo San Pablo tiene casi el 40 %.",
+    "Oficios":"Los oficios en conjunto se reparten por toda la ciudad, sin un centro claro.",
+    "Fabricantes":"Distribución relativamente pareja; Egipto y Las Aguas son las de menor presencia. Ojo: solo 84 registros.",
+    "Sastres":"Un oficio manual que sí se queda en el centro: 43,8 % entre San Pedro y San Pablo, cerca de su clientela.",
+    "Carpinteros y ebanistas":"También con presencia central (32,7 % entre San Pedro y San Pablo), aunque más repartidos.",
+    "Costureras":"Hacia el norte y el sur: Las Nieves (23,8 %) y Santa Bárbara (19,1 %).",
+    "Albañiles":"Casi ausentes del centro (3,2 % en cada parroquia central); fuertes en Las Nieves, Santa Bárbara y Las Cruces.",
+    "Avalúos (catastro 1890)":"Los avalúos más altos del catastro de 1890 (12.500 a 80.000 pesos) coinciden con San Pedro y San Pablo; los más bajos (400 a 1.400 pesos) se dispersan hacia los bordes."
+  };
+  // schematic tiles [x,y,w,h] in a 4x4 grid of 100px, north up, cerros to the east
+  const G = {
+    "Las Nieves":[60,20,200,90], "Las Aguas":[270,20,100,90],
+    "San Victorino":[10,120,110,100], "San Pablo":[130,120,110,100], "San Pedro":[250,120,120,100],
+    "Egipto":[300,230,70,130], "Santa Bárbara":[90,230,200,90], "Las Cruces":[90,330,200,80]
+  };
+  const ramp = ["--s0","--s1","--s2","--s3","--s4","--s5"].map(v=>`var(${v})`);
+  const svgNS="http://www.w3.org/2000/svg";
+  const map=document.getElementById("map");
+  // cerros
+  const defs=document.createElementNS(svgNS,"defs");
+  defs.innerHTML='<pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" style="stroke:var(--ink-soft)" stroke-width="1"/></pattern>';
+  map.appendChild(defs);
+  const cer=document.createElementNS(svgNS,"rect");
+  Object.entries({x:385,y:10,width:60,height:400,fill:"url(#hatch)",opacity:.35}).forEach(([k,v])=>cer.setAttribute(k,v));
+  map.appendChild(cer);
+  const ct=document.createElementNS(svgNS,"text");
+  ct.setAttribute("x",415); ct.setAttribute("y",215); ct.setAttribute("transform","rotate(90 415 215)");
+  ct.setAttribute("text-anchor","middle"); ct.setAttribute("style","font-family:var(--mono);font-size:11px;fill:var(--ink-soft);letter-spacing:2px");
+  ct.textContent="CERROS ORIENTALES"; map.appendChild(ct);
+  const nt=document.createElementNS(svgNS,"text");
+  nt.setAttribute("x",20); nt.setAttribute("y",400); nt.setAttribute("style","font-family:var(--mono);font-size:11px;fill:var(--ink-soft)");
+  nt.textContent="N ↑"; map.appendChild(nt);
+  const cells={};
+  P.forEach(p=>{
+    const [x,y,w,h]=G[p];
+    const g=document.createElementNS(svgNS,"g"); g.setAttribute("class","parr");
+    const r=document.createElementNS(svgNS,"rect");
+    Object.entries({x,y,width:w,height:h}).forEach(([k,v])=>r.setAttribute(k,v));
+    const t1=document.createElementNS(svgNS,"text"); t1.setAttribute("x",x+8); t1.setAttribute("y",y+19); t1.textContent=p;
+    const t2=document.createElementNS(svgNS,"text"); t2.setAttribute("class","v"); t2.setAttribute("x",x+8); t2.setAttribute("y",y+h-12);
+    const t3=document.createElementNS(svgNS,"text"); t3.setAttribute("class","star"); t3.setAttribute("x",x+w-20); t3.setAttribute("y",y+20);
+    g.append(r,t1,t2,t3); map.appendChild(g); cells[p]={g,r,t2,t3};
+    r.addEventListener("click",()=>{ if(!hidden) return; bet=(bet===p?null:p); render(); }); g.style.cursor="pointer";
+  });
+
+  // population dots (1 dot = 500 hab) inside same silhouette, deterministic
+  function rng(seed){return ()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646;};}
+  function pop(id,n,seed){
+    const s=document.getElementById(id), R=rng(seed);
+    const path="M40 30 L150 22 L168 70 L160 150 L120 182 L55 176 L30 120 Z";
+    s.innerHTML=`<path d="${path}" style="fill:var(--paper);stroke:var(--lindero)" stroke-width="1.5"/>`;
+    const tmp=document.createElementNS(svgNS,"path"); tmp.setAttribute("d",path); s.appendChild(tmp); tmp.setAttribute("style","fill:none;stroke:none");
+    let placed=0, guard=0;
+    while(placed<n && guard<20000){ guard++;
+      const x=30+R()*140, y=22+R()*160;
+      const pt=s.createSVGPoint? s.createSVGPoint():null;
+      let inside=true;
+      if(pt && tmp.isPointInFill){ pt.x=x; pt.y=y; inside=tmp.isPointInFill(pt); }
+      if(!inside) continue;
+      const c=document.createElementNS(svgNS,"circle"); c.setAttribute("cx",x.toFixed(1)); c.setAttribute("cy",y.toFixed(1)); c.setAttribute("r",2.6);
+      c.setAttribute("style","fill:var(--prusia)"); s.appendChild(c); placed++;
+    }
+  }
+  pop("pop1801",Math.round(21394/500),7); pop("pop1907",Math.round(86328/500),11);
+
+  // chips
+  const chips=document.getElementById("chips");
+  const keys=[...Object.keys(D),"Avalúos (catastro 1890)"];
+  let current="Comerciantes", hidden=false, bet=null, overlay=false;
+  keys.forEach(k=>{const b=document.createElement("button"); b.type="button"; b.className="chip"+(k.startsWith("Avalúos")?" avaluo":""); b.textContent=k;
+    b.setAttribute("aria-pressed",k===current?"true":"false"); b.addEventListener("click",()=>{current=k; render();}); chips.appendChild(b);});
+
+  const bars=document.getElementById("bars"), explain=document.getElementById("explain"), legend=document.getElementById("legend");
+  function step(v,max){ return Math.min(5, Math.floor((v/max)*5.999)); }
+  function render(){
+    [...chips.children].forEach(b=>b.setAttribute("aria-pressed", b.textContent===current?"true":"false"));
+    bars.innerHTML="";
+    if(current.startsWith("Avalúos")){
+      const cls={"San Pablo":"alto","San Pedro":"alto","Las Nieves":"mid","Santa Bárbara":"mid","San Victorino":"mid","Egipto":"bajo","Las Aguas":"bajo","Las Cruces":"bajo"};
+      P.forEach(p=>{const c=cells[p]; const k=cls[p];
+        c.r.style.fill = k==="alto"?"var(--lindero)":"var(--s0)";
+        c.r.style.fillOpacity = k==="alto"?".85":"1";
+        c.g.classList.toggle("dark", k==="alto"); c.t2.textContent = k==="alto"?"avalúos más altos":""; c.g.classList.remove("hi","bet"); c.t3.textContent="";});
+      bars.innerHTML='<div class="row top"><span>San Pedro y San Pablo</span><span style="font-family:var(--mono);font-size:.9rem;color:var(--lindero)">$12.500 – $80.000</span><span></span></div>'+
+        '<div class="row"><span>Bordes de la ciudad</span><span style="font-family:var(--mono);font-size:.9rem">$400 – $1.400</span><span></span></div>';
+      explain.innerHTML=NOTES[current]+'<span class="n">Rangos de avalúo del catastro de 1890, en pesos. La síntesis no da valores para las parroquias intermedias, por eso quedan sin color.</span>';
+      legend.innerHTML='<i style="background:var(--lindero)"></i> avalúos más altos <i style="background:var(--s0)"></i> sin dato en esta síntesis / más bajos hacia los bordes';
+      return;
+    }
+    const d=D[current], max=Math.max(...d.v), top=Math.max(...d.v);
+    const scaleMax=Math.ceil(max/10)*10;
+    P.forEach((p,i)=>{const v=d.v[i], s=step(v,max), c=cells[p];
+      c.r.style.fill=ramp[s]; c.r.style.fillOpacity="1"; c.g.classList.toggle("dark", s>=3); c.t2.textContent=v.toFixed(1).replace(".",",")+" %";});
+    const order=P.map((p,i)=>[p,d.v[i]]).sort((a,b)=>b[1]-a[1]);
+    order.forEach(([p,v])=>{const row=document.createElement("div"); row.className="row"+(v===top?" top":"");
+      row.innerHTML=`<span>${p}</span><div class="track"><div class="fill" style="width:${(v/scaleMax*100).toFixed(1)}%"></div></div><span class="val">${v.toFixed(1).replace(".",",")} %</span>`;
+      bars.appendChild(row);});
+    explain.innerHTML=NOTES[current]+`<span class="n">n = ${d.n.toLocaleString("es-CO")} registros · escala de barras 0–${scaleMax} %</span>`;
+    const maxP=P[d.v.indexOf(top)];
+    P.forEach(p=>{const c=cells[p]; c.g.classList.toggle("bet",p===bet); c.t3.textContent=(p===bet)?"★":"";
+      c.g.classList.toggle("hi", overlay && (p==="San Pedro"||p==="San Pablo"));});
+    if(bet && !hidden){ const ok=bet===maxP;
+      explain.innerHTML=`<b style="color:var(--lindero)">${ok?"Acertaron":"No acertaron"}.</b> El grupo apostó por ${bet}; el máximo está en ${maxP} (${top.toFixed(1).replace(".",",")} %). `+explain.innerHTML; }
+    if(overlay){ explain.innerHTML+='<span class="n">Línea punteada: San Pedro y San Pablo, donde se concentran los avalúos más altos del catastro de 1890.</span>'; }
+    legend.innerHTML='menos '+ramp.map(c=>`<i style="background:${c}"></i>`).join("")+' más (relativo al máximo del grupo)';
+  }
+  render();
+
+  const gb=document.getElementById("guessbtn"), gh=document.getElementById("guesshint"), ex=document.getElementById("explorer");
+  gb.addEventListener("click",()=>{hidden=!hidden; if(hidden) bet=null; ex.classList.toggle("hidden-vals",hidden); gb.setAttribute("aria-pressed",String(hidden));
+    gb.textContent=hidden?"Revelar valores":"Ocultar valores"; gh.textContent=hidden?"Valores ocultos: hagan clic en la parroquia que el grupo elija":"Valores visibles";
+    explain.style.visibility=hidden?"hidden":"visible"; render();});
+  document.getElementById("ovchk").addEventListener("change",e=>{overlay=e.target.checked; render();});
+
+  // keyboard stepping between plates + active nav
+  const plates=[...document.querySelectorAll(".plate")], links=[...document.querySelectorAll(".bar nav a")];
+  function idx(){let i=0; plates.forEach((p,k)=>{ if(p.getBoundingClientRect().top<window.innerHeight*0.35) i=k;}); return i;}
+  function mark(){const i=idx(); links.forEach((a,k)=>a.classList.toggle("on",k===i));}
+  window.addEventListener("scroll",mark,{passive:true}); mark();
+  window.addEventListener("keydown",e=>{
+    if(["INPUT","TEXTAREA"].includes(document.activeElement.tagName)) return;
+    const i=idx();
+    if(["ArrowRight","PageDown"].includes(e.key) || (e.key===" " && document.activeElement.tagName!=="BUTTON")){e.preventDefault(); plates[Math.min(i+1,plates.length-1)].scrollIntoView();}
+    if(["ArrowLeft","PageUp"].includes(e.key)){e.preventDefault(); plates[Math.max(i-1,0)].scrollIntoView();}
+  });
+  document.getElementById("fsbtn").addEventListener("click",()=>{
+    try{ if(!document.fullscreenElement){ const r=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen(); if(r&&r.catch) r.catch(()=>{}); } else { document.exitFullscreen(); } }catch(_){}
+  });
+})();
+</script>
+<script>
+(function(){
+  /* ---------- georeferencing exercise ---------- */
+  const NS="http://www.w3.org/2000/svg";
+  // modern (schematic) positions, north up, east right
+  const LM=[
+    ["Plaza de Bolívar",215,255],["San Francisco",205,178],["Las Nieves",200,95],["San Victorino",105,195],
+    ["Las Aguas",300,120],["Egipto",318,262],["Santa Bárbara",210,325],["Las Cruces",195,372]
+  ];
+  // old plan = inverse of an affine (rotation, scale, shift) plus hand-drawing errors
+  const ang=-16*Math.PI/180, sc=0.86, tx=40, ty=58;
+  const cs=Math.cos(ang), sn=Math.sin(ang);
+  const jit={"Las Aguas":[9,-6],"Egipto":[-10,8],"Las Cruces":[7,9],"San Victorino":[-6,-7]};
+  function toOld(x,y){ const X=x-200, Y=y-200; return [sc*(cs*X - sn*Y)+200+tx-40, sc*(sn*X + cs*Y)+200+ty-58]; }
+  const OLD=LM.map(([n,x,y])=>{ const [ox,oy]=toOld(x,y); const j=jit[n]||[0,0]; return [n,ox+j[0],oy+j[1]]; });
+  const oldsvg=document.getElementById("oldsvg"), newsvg=document.getElementById("newsvg");
+  function el(tag,attrs,parent){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e; }
+
+  function drawOld(g, forOverlay){
+    const ink = forOverlay ? {style:"stroke:var(--lindero);fill:none","stroke-width":1.3,"vector-effect":"non-scaling-stroke",opacity:.85}
+                           : {class:"old-ink","stroke-width":.7,opacity:.55};
+    if(forOverlay) el("rect",{x:8,y:8,width:384,height:384,style:"fill:var(--lindero);fill-opacity:.08;stroke:var(--lindero)","stroke-width":2.5,"stroke-dasharray":"8 5","vector-effect":"non-scaling-stroke"},g);
+    else el("rect",{x:8,y:8,width:384,height:384,style:"fill:var(--sheet);stroke:var(--lindero)","stroke-width":1.5},g);
+    // old street grid drawn in old frame
+    for(let i=0;i<=8;i++){ const a=toOld(60+i*40,40), b=toOld(60+i*40,390); el("line",Object.assign({x1:a[0],y1:a[1],x2:b[0],y2:b[1]},ink),g); }
+    for(let i=0;i<=8;i++){ const a=toOld(40,50+i*42), b=toOld(370,50+i*42); el("line",Object.assign({x1:a[0],y1:a[1],x2:b[0],y2:b[1]},ink),g); }
+    const r1=toOld(360,150), r2=toOld(270,165), r3=toOld(190,182), r4=toOld(80,196);
+    el("path",{d:`M${r1} Q${r2} ${r3} T${r4}`.replace(/,/g," "),class:"old-river"},g);
+    OLD.forEach(([n,x,y])=>{ el("rect",{x:x-4.5,y:y-4.5,width:9,height:9,style:forOverlay?"fill:var(--lindero)":"fill:var(--ink)"},g); if(forOverlay) return; const t=el("text",{x:x+7,y:y-6,class:"lmt"},g); t.textContent=n; });
+    if(!forOverlay){
+      const t=el("text",{x:24,y:378,class:"lmt"},g); t.textContent="Plano de Bogotá · didáctico";
+      const c=toOld(360,60); el("path",{d:`M${c[0]} ${c[1]-14} L${c[0]-5} ${c[1]+6} L${c[0]} ${c[1]+2} L${c[0]+5} ${c[1]+6} Z`,style:"fill:var(--ink-soft)",transform:`rotate(${-16} ${c[0]} ${c[1]})`},g);
+    }
+  }
+  function drawNew(){
+    el("rect",{x:0,y:0,width:400,height:400,style:"fill:var(--sheet)"},newsvg);
+    for(let x=60;x<=340;x+=40) el("line",{x1:x,y1:10,x2:x,y2:395,class:"street"},newsvg);
+    for(let y=50;y<=386;y+=42) el("line",{x1:20,y1:y,x2:350,y2:y,class:"street"},newsvg);
+    const t1=el("text",{x:212,y:22,class:"streetl"},newsvg); t1.textContent="Cra. 7";
+    el("path",{d:"M360 150 Q270 165 190 182 T80 196",style:"stroke:var(--prusia);fill:none;stroke-width:6;opacity:.25"},newsvg);
+    const t2=el("text",{x:24,y:207,class:"streetl"},newsvg); t2.textContent="Av. Jiménez";
+    el("rect",{x:355,y:0,width:45,height:400,style:"fill:var(--rule);opacity:.5"},newsvg);
+    const t3=el("text",{x:378,y:200,class:"streetl",transform:"rotate(90 378 200)","text-anchor":"middle"},newsvg); t3.textContent="CERROS";
+    LM.forEach(([n,x,y])=>{ el("circle",{cx:x,cy:y,r:4,style:"fill:var(--prusia)"},newsvg); const t=el("text",{x:x+7,y:y+4,class:"newt"},newsvg); t.textContent=n; });
+  }
+  const oldBase=el("g",{},oldsvg); drawOld(oldBase,false);
+  drawNew();
+  const warpG=el("g",{id:"warpG"},newsvg); warpG.style.opacity=.9; warpG.style.display="none";
+  drawOld(warpG,true);
+  const pinsOld=el("g",{},oldsvg), pinsNew=el("g",{},newsvg), residG=el("g",{},newsvg);
+
+  let pairs=[], pending=null, warped=null;
+  const st=document.getElementById("geoStatus"), warpBtn=document.getElementById("warpBtn"), undoBtn=document.getElementById("undoBtn");
+  const figOld=document.getElementById("figOld"), figNew=document.getElementById("figNew"), oldHint=document.getElementById("oldHint"), newHint=document.getElementById("newHint");
+  const tbl=document.getElementById("gcp"), tbody=tbl.querySelector("tbody");
+  function svgPt(svg,evt){ const p=svg.createSVGPoint(); p.x=evt.clientX; p.y=evt.clientY; const m=svg.getScreenCTM(); if(!m) return null; const q=p.matrixTransform(m.inverse()); return [q.x,q.y]; }
+  function nearest(list,x,y){ let best=null,d=1e9; list.forEach(([n,a,b])=>{ const dd=Math.hypot(a-x,b-y); if(dd<d){d=dd;best=n;} }); return d<40?best:"—"; }
+  function pin(g,x,y,i){ const pg=el("g",{class:"pin"},g); el("circle",{cx:x,cy:y,r:8},pg); const t=el("text",{x:x,y:y+3.5,"text-anchor":"middle"},pg); t.textContent=i; }
+  function redraw(){
+    pinsOld.innerHTML=""; pinsNew.innerHTML=""; residG.innerHTML="";
+    pairs.forEach((p,i)=>{ pin(pinsOld,p.o[0],p.o[1],i+1); pin(pinsNew,p.n[0],p.n[1],i+1); });
+    if(pending) pin(pinsOld,pending[0],pending[1],pairs.length+1);
+    warpBtn.disabled=pairs.length<3; undoBtn.disabled=!(pairs.length||pending);
+    figOld.classList.toggle("active",!pending); figNew.classList.toggle("active",!!pending);
+    oldHint.textContent=pending?"":"1 · clic aquí"; newHint.textContent=pending?"2 · clic aquí":"";
+    tbody.innerHTML=""; tbl.hidden=!pairs.length;
+    pairs.forEach((p,i)=>{ const tr=document.createElement("tr"); const err=warped?Math.hypot(...apply(warped,p.o).map((v,k)=>v-p.n[k])):null;
+      if(err!==null && err>12) tr.className="bad";
+      tr.innerHTML=`<td>${i+1}</td><td>${p.name}</td><td class="num">${err===null?"—":err.toFixed(1)}</td>`; tbody.appendChild(tr);
+      if(warped){ const q=apply(warped,p.o); el("line",{x1:q[0],y1:q[1],x2:p.n[0],y2:p.n[1],class:"resid"},residG); } });
+  }
+  const ID={a:1,b:0,c:0,d:1,e:0,f:0}; let shown=ID, anim=0;
+  function setM(m){ warpG.setAttribute("transform",`matrix(${m.a} ${m.b} ${m.c} ${m.d} ${m.e} ${m.f})`); shown=m; }
+  function animateTo(m){
+    cancelAnimationFrame(anim);
+    const from = warpG.dataset.on==="1" ? shown : ID; warpG.dataset.on="1";
+    const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(reduce){ setM(m); return; }
+    const t0=performance.now(), dur=1600;
+    setM(from);
+    const step=(t)=>{ let k=Math.min(1,(t-t0)/dur); k=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+      const lerp=(p)=>from[p]+(m[p]-from[p])*k; setM({a:lerp("a"),b:lerp("b"),c:lerp("c"),d:lerp("d"),e:lerp("e"),f:lerp("f")});
+      if(k<1) anim=requestAnimationFrame(step); };
+    anim=requestAnimationFrame(step);
+  }
+  function apply(m,[x,y]){ return [m.a*x+m.c*y+m.e, m.b*x+m.d*y+m.f]; }
+  function solve3(A,b){ // Gaussian elimination
+    const M=A.map((r,i)=>[...r,b[i]]);
+    for(let i=0;i<3;i++){ let mx=i; for(let k=i+1;k<3;k++) if(Math.abs(M[k][i])>Math.abs(M[mx][i])) mx=k; [M[i],M[mx]]=[M[mx],M[i]];
+      if(Math.abs(M[i][i])<1e-9) return null;
+      for(let k=0;k<3;k++){ if(k===i) continue; const f=M[k][i]/M[i][i]; for(let j=i;j<4;j++) M[k][j]-=f*M[i][j]; } }
+    return [M[0][3]/M[0][0], M[1][3]/M[1][1], M[2][3]/M[2][2]];
+  }
+  function fit(){
+    let Sxx=0,Sxy=0,Syy=0,Sx=0,Sy=0,n=pairs.length, X=[0,0,0], Y=[0,0,0];
+    pairs.forEach(({o:[x,y],n:[u,v]})=>{ Sxx+=x*x; Sxy+=x*y; Syy+=y*y; Sx+=x; Sy+=y; X[0]+=x*u; X[1]+=y*u; X[2]+=u; Y[0]+=x*v; Y[1]+=y*v; Y[2]+=v; });
+    const A=[[Sxx,Sxy,Sx],[Sxy,Syy,Sy],[Sx,Sy,n]];
+    const p=solve3(A,X), q=solve3(A,Y); if(!p||!q) return null;
+    return {a:p[0],c:p[1],e:p[2],b:q[0],d:q[1],f:q[2]};
+  }
+  oldsvg.addEventListener("click",e=>{ if(pending) return; const pt=svgPt(oldsvg,e); if(!pt) return; pending=pt;
+    st.innerHTML=`Punto ${pairs.length+1} marcado cerca de <b>${nearest(OLD,pt[0],pt[1])}</b>. Ahora hagan clic en ese mismo lugar en el mapa actual.`; redraw(); });
+  newsvg.addEventListener("click",e=>{ if(!pending) return; const pt=svgPt(newsvg,e); if(!pt) return;
+    pairs.push({o:pending,n:pt,name:nearest(OLD,pending[0],pending[1])}); pending=null; warped=null; warpG.style.display="none"; warpG.dataset.on="";
+    st.innerHTML = pairs.length<3 ? `${pairs.length} par${pairs.length>1?"es":""} de puntos. Faltan ${3-pairs.length} para poder deformar el plano.` : `${pairs.length} pares. Ya pueden deformar el plano, o seguir agregando puntos repartidos por todo el mapa.`; redraw(); });
+  warpBtn.addEventListener("click",()=>{ const m=fit(); if(!m){ st.textContent="Los puntos están casi en línea recta: agreguen uno en otra zona del mapa."; return; }
+    warped=m; warpG.style.display=""; animateTo(m);
+    const errs=pairs.map(p=>Math.hypot(...apply(m,p.o).map((v,k)=>v-p.n[k]))); const rms=Math.sqrt(errs.reduce((s,v)=>s+v*v,0)/errs.length);
+    st.innerHTML = pairs.length===3 ? `Con 3 puntos el plano siempre “cuadra” (error ${rms.toFixed(1)} px): no hay con qué comprobarlo. Por eso Map Warper pide más. Agreguen un cuarto punto y vuelvan a deformar.`
+      : `Error medio (RMS): <b>${rms.toFixed(1)} px</b>. El cuadro rojo punteado es la hoja del plano antiguo: así quedó girada, escalada y deformada para encajar. Las líneas punteadas cortas muestran cuánto se desvía cada punto. ¿El error está en el clic, o en el plano mismo?`;
+    redraw(); });
+  undoBtn.addEventListener("click",()=>{ if(pending){pending=null;} else pairs.pop(); warped=null; warpG.style.display="none"; warpG.dataset.on=""; st.textContent="Último punto deshecho."; redraw(); });
+  document.getElementById("resetBtn").addEventListener("click",()=>{ pairs=[]; pending=null; warped=null; warpG.style.display="none"; warpG.dataset.on=""; st.textContent="Paso 1: elijan un lugar que exista en los dos mapas, por ejemplo la Plaza de Bolívar."; redraw(); });
+  document.getElementById("opac").addEventListener("input",e=>{ warpG.style.opacity=e.target.value/100; });
+  redraw();
+
+  /* ---------- question wall (kept only in this browser) ---------- */
+  const KEY="bogota1894-preguntas", form=document.getElementById("wallForm"), inp=document.getElementById("wallInput"), list=document.getElementById("wallList");
+  let qs=[]; try{ qs=JSON.parse(localStorage.getItem(KEY)||"[]"); if(!Array.isArray(qs)) qs=[]; }catch(_){ qs=[]; }
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(qs)); }catch(_){} }
+  function draw(){ list.innerHTML=""; qs.forEach((q,i)=>{ const li=document.createElement("li"); const sp=document.createElement("span"); sp.textContent=q;
+    const b=document.createElement("button"); b.type="button"; b.textContent="quitar"; b.addEventListener("click",()=>{ qs.splice(i,1); save(); draw(); }); li.append(sp,b); list.appendChild(li); }); }
+  form.addEventListener("submit",e=>{ e.preventDefault(); const v=inp.value.trim(); if(!v) return; qs.push(v); inp.value=""; save(); draw(); });
+  const conf=document.getElementById("wallConfirm");
+  document.getElementById("wallClear").addEventListener("click",()=>{ conf.hidden=false; });
+  document.getElementById("wallNo").addEventListener("click",()=>{ conf.hidden=true; });
+  document.getElementById("wallYes").addEventListener("click",()=>{ qs=[]; save(); draw(); conf.hidden=true; });
+  draw();
+})();
+</script>
+
+</body>
+</html>

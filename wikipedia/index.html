@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Guía para el taller de edición en Wikipedia del curso Historia Digital (UNAL, 2026-2).">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Editar Wikipedia paso a paso</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: una columna de lectura (~68ch) con fichas de paso numeradas; cada paso trae un esquema de la interfaz dibujado en HTML. */
+:root{
+  --bg:#F5F4F0;
+  --surface:#FFFFFF;
+  --ink:#1B2433;
+  --muted:#545C6B;
+  --line:#D9D7CF;
+  --link:#2A55B0;        /* azul de enlace, como en los artículos */
+  --link-soft:#E6ECF8;
+  --redlink:#B3261E;     /* rojo de "enlace rojo": avisos */
+  --red-soft:#F8E7E5;
+  --ok:#2E6B3F;
+  --ok-soft:#E3F0E6;
+  --diff-old:#FBF0D6; --diff-old-line:#C98A1B;
+  --diff-new:#E1EBF8; --diff-new-line:#2F5F98;
+  --ui:#EEF0F3;
+  --f-display:'Literata', Georgia, 'Times New Roman', serif;
+  --f-body:'Atkinson Hyperlegible', 'Segoe UI', Arial, sans-serif;
+  --f-mono:'IBM Plex Mono', 'Courier New', monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14181F; --surface:#1C222C; --ink:#ECEBE6; --muted:#A7AEBB; --line:#323A47;
+    --link:#8FB0F2; --link-soft:#22304A; --redlink:#F08A82; --red-soft:#3A2224;
+    --ok:#86C597; --ok-soft:#1F3226;
+    --diff-old:#3A3020; --diff-old-line:#D9A441; --diff-new:#1E2C40; --diff-new-line:#7FA6DA;
+    --ui:#262D39; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14181F; --surface:#1C222C; --ink:#ECEBE6; --muted:#A7AEBB; --line:#323A47;
+  --link:#8FB0F2; --link-soft:#22304A; --redlink:#F08A82; --red-soft:#3A2224;
+  --ok:#86C597; --ok-soft:#1F3226;
+  --diff-old:#3A3020; --diff-old-line:#D9A441; --diff-new:#1E2C40; --diff-new-line:#7FA6DA;
+  --ui:#262D39; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:18px;line-height:1.6;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:0 64px}
+.wrap{max-width:760px;margin:0 auto}
+a{color:var(--link)}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.2;margin:0}
+code,.mono{font-family:var(--f-mono);font-size:.88em}
+p{margin:0}
+
+/* Encabezado */
+header.top{padding-block:48px 28px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.eyebrow{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(34px,6vw,52px);font-weight:700}
+.lead{font-size:20px;color:var(--muted);max-width:62ch}
+.goal{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.goal span{background:var(--link-soft);color:var(--ink);border-radius:999px;padding:6px 14px;font-size:16px}
+.goal b{color:var(--link)}
+
+/* Progreso */
+.progress{position:sticky;top:env(safe-area-inset-top, 0px);z-index:5;background:var(--bg);padding-block:12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:10;background:var(--bg)}
+.bar{flex:1;height:8px;background:var(--ui);border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+.progress span{font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* Secciones */
+section{padding-block:36px 8px;display:flex;flex-direction:column;gap:16px}
+h2{font-size:30px;font-weight:600}
+.before{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px 22px;display:flex;flex-direction:column;gap:10px}
+.before ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+
+/* Pasos */
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:22px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:14px}
+.step.done{border-color:var(--ok)}
+.step-head{display:flex;gap:14px;align-items:baseline}
+.num{font-family:var(--f-display);font-size:34px;font-weight:700;color:var(--link);line-height:1;min-width:30px;font-variant-numeric:tabular-nums}
+.step.done .num{color:var(--ok)}
+.step h3{font-size:24px;font-weight:600;flex:1;min-width:0}
+.step ol,.step ul{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+.say{border-left:3px solid var(--link);padding:2px 0 2px 14px;color:var(--muted);font-style:italic}
+.warn{background:var(--red-soft);border-radius:8px;padding:12px 14px;font-size:16px}
+.warn b{color:var(--redlink)}
+.check{display:flex;align-items:center;gap:10px;font-size:16px;color:var(--muted);cursor:pointer;align-self:flex-start;padding:6px 2px}
+.check input{width:20px;height:20px;accent-color:var(--ok)}
+.check input:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+
+/* Esquemas de interfaz */
+.mock{background:var(--ui);border:1px solid var(--line);border-radius:8px;padding:14px;font-size:15px;overflow-x:auto}
+.mock-cap{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.tabs span{padding:6px 10px;color:var(--link);white-space:nowrap}
+.tabs .sp{flex:1}
+.hl{outline:2px solid var(--redlink);outline-offset:1px;border-radius:4px;background:var(--surface);font-weight:700}
+.toolbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.toolbar span{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:4px 10px;white-space:nowrap}
+.dialog{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:10px;max-width:460px}
+.dialog .tabs span{color:var(--muted)}
+.dialog .tabs .on{color:var(--link);border-bottom:2px solid var(--link)}
+.field{display:flex;gap:8px;flex-wrap:wrap}
+.field .input{flex:1;min-width:0;border:1px solid var(--line);border-radius:4px;padding:6px 10px;color:var(--muted);font-family:var(--f-mono);font-size:13px;background:var(--bg)}
+.btn{background:var(--link);color:var(--surface);border-radius:4px;padding:6px 14px;font-weight:700;white-space:nowrap}
+.sample{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px;font-family:var(--f-display);font-size:16px}
+sup.ref{color:var(--link);font-family:var(--f-body)}
+.hist{font-family:var(--f-mono);font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 12px;white-space:nowrap}
+.hist .lk{color:var(--link)}
+.diff{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.diff div{padding:10px 12px;border-radius:6px;font-size:15px;min-width:0}
+.diff .old{background:var(--diff-old);border-left:4px solid var(--diff-old-line)}
+.diff .new{background:var(--diff-new);border-left:4px solid var(--diff-new-line)}
+.diff b{display:block;font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.summary{display:flex;flex-direction:column;gap:8px;max-width:460px}
+.summary .input{border:1px solid var(--line);border-radius:4px;padding:8px 10px;background:var(--surface);font-size:14px}
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.opt{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.opt b{font-size:16px}
+.opt span{font-size:15px;color:var(--muted)}
+
+/* Taller de pruebas */
+.copyrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.copyrow code{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-size:16px;user-select:all}
+button{font:inherit;font-size:15px;background:var(--surface);color:var(--link);border:1px solid var(--link);border-radius:6px;padding:7px 14px;cursor:pointer}
+button:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+.copied{font-size:14px;color:var(--ok)}
+
+/* Tabla de problemas */
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:16px;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:none}
+td:first-child{font-weight:700;width:38%}
+
+/* Entrega */
+.deliver{background:var(--ink);color:var(--bg);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:12px}
+.deliver h2{color:var(--bg)}
+.deliver ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+.deliver .date{font-family:var(--f-display);font-size:24px;font-weight:600}
+.deliver code{background:rgba(127,127,127,.25);border-radius:4px;padding:1px 6px}
+footer{padding-top:32px;font-size:15px;color:var(--muted)}
+
+@media (max-width:620px){
+  body{font-size:17px}
+  .opts{grid-template-columns:1fr}
+  .diff{grid-template-columns:1fr}
+  .step{padding:18px}
+}
+@media (prefers-reduced-motion: reduce){ .bar i{transition:none} }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">Historia Digital · UNAL · Sesión 11</p>
+    <h1>Editar Wikipedia paso a paso</h1>
+    <p class="lead">Una guía para el taller de edición: del botón «Editar» al enlace que prueba lo que escribiste. Trabajen en el artículo que eligieron en la entrega 6.</p>
+    <div class="goal" aria-label="Meta mínima de la edición">
+      <span><b>2</b> referencias fiables nuevas</span>
+      <span><b>1</b> párrafo de 100–200 palabras con su fuente</span>
+      <span><b>1</b> mejora menor</span>
+    </div>
+  </header>
+
+  <div class="progress" aria-live="polite">
+    <div class="bar" aria-hidden="true"><i id="barfill"></i></div>
+    <span id="count">0 de 6 pasos</span>
+  </div>
+
+  <section aria-labelledby="antes">
+    <h2 id="antes">Antes de empezar</h2>
+    <div class="before">
+      <ol>
+        <li><b>Inicia sesión</b> con «Acceder», arriba a la derecha. Si no lo haces, la edición queda firmada con la dirección IP de tu computador y no con tu usuario.</li>
+        <li><b>Busca tu artículo</b>: el que elegiste en la entrega 6.</li>
+        <li>Ten a mano <b>tus fuentes</b>: la URL, el DOI o el ISBN de cada una.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section aria-labelledby="pasos">
+    <h2 id="pasos">Los seis pasos</h2>
+    <ol class="steps">
+
+      <li class="step" id="paso-1">
+        <div class="step-head"><span class="num">1</span><h3>Abrir el editor</h3></div>
+        <p>Haz clic en la pestaña <b>«Editar»</b>, arriba del artículo. No uses «Editar código»: ese modo muestra el código de wiki. La primera vez, Wikipedia puede preguntarte qué editor quieres: elige el <b>editor visual</b>.</p>
+        <div class="mock" role="img" aria-label="Esquema: pestañas del artículo, con Editar resaltada">
+          <p class="mock-cap">Esquema · pestañas del artículo</p>
+          <div class="tabs"><span>Artículo</span><span>Discusión</span><span class="sp"></span><span>Leer</span><span class="hl">Editar</span><span>Editar código</span><span>Ver historial</span></div>
+        </div>
+        <p class="say">El artículo se ve igual, pero ahora se puede escribir encima.</p>
+        <label class="check"><input type="checkbox" id="c1" data-step="1"> Hecho</label>
+      </li>
+
+      <li class="step" id="paso-2">
+        <div class="step-head"><span class="num">2</span><h3>Escribir</h3></div>
+        <p>Haz clic donde quieres agregar texto y escribe una frase o un párrafo <b>con tus propias palabras</b>. Nunca copies el texto de la fuente.</p>
+        <div class="warn"><b>Regla:</b> si no tengo fuente para esta frase, no la escribo.</div>
+        <label class="check"><input type="checkbox" id="c2" data-step="2"> Hecho</label>
+      </li>
+
+      <li class="step" id="paso-3">
+        <div class="step-head"><span class="num">3</span><h3>Citar la fuente</h3></div>
+        <ol>
+          <li>Pon el cursor <b>al final de la frase</b>, después del punto.</li>
+          <li>En la barra de arriba, haz clic en <b>«Citar»</b>.</li>
+          <li>En la pestaña <b>«Automático»</b>, pega la URL, el DOI o el ISBN y haz clic en <b>«Generar»</b>.</li>
+          <li>Revisa que autor, título y fecha estén bien y haz clic en <b>«Insertar»</b>.</li>
+        </ol>
+        <div class="mock" role="img" aria-label="Esquema: barra del editor visual con el botón Citar y la ventana de cita automática">
+          <p class="mock-cap">Esquema · barra del editor y ventana «Citar»</p>
+          <div class="toolbar"><span>Párrafo ▾</span><span>A ▾</span><span>🔗</span><span class="hl">Citar</span><span>Insertar ▾</span><span>☰</span><span class="btn">Publicar cambios…</span></div>
+          <div class="dialog">
+            <div class="tabs"><span class="on">Automático</span><span>Manual</span><span>Reutilizar</span></div>
+            <div class="field"><span class="input">https://doi.org/10.12804/…</span><span class="btn">Generar</span></div>
+          </div>
+        </div>
+        <p>El resultado: un número entre corchetes junto a tu frase, y la referencia completa al final del artículo.</p>
+        <div class="sample">Texto que escribiste, con su fuente al final.<sup class="ref">[1]</sup></div>
+        <p>¿No funciona el automático? Usa la pestaña <b>«Manual»</b>: elige el tipo (libro, web, publicación) y llena los campos a mano.</p>
+        <div class="warn"><b>Captcha:</b> a las cuentas nuevas Wikipedia les puede pedir resolver un captcha cuando agregan enlaces externos. Es normal: resuélvelo y sigue.</div>
+        <label class="check"><input type="checkbox" id="c3" data-step="3"> Hecho</label>
+      </li>
+
+      <li class="step" id="paso-4">
+        <div class="step-head"><span class="num">4</span><h3>Hacer una mejora menor</h3></div>
+        <p>Elige una de estas tres:</p>
+        <div class="opts">
+          <div class="opt"><b>Enlace interno</b><span>Selecciona una palabra, clic en el ícono de cadena (o Ctrl+K) y elige el artículo al que debe llevar.</span></div>
+          <div class="opt"><b>Imagen</b><span>Menú «Insertar» → «Multimedia». Busca en Commons, elige y escribe el pie de foto.</span></div>
+          <div class="opt"><b>Categoría</b><span>Ícono de tres rayas («Opciones de página») → «Categorías».</span></div>
+        </div>
+        <p class="say">Si pones una imagen, revisa su ficha en Commons: autor, fecha, fuente y licencia. Es lo mismo que hicimos con Dublin Core.</p>
+        <label class="check"><input type="checkbox" id="c4" data-step="4"> Hecho</label>
+      </li>
+
+      <li class="step" id="paso-5">
+        <div class="step-head"><span class="num">5</span><h3>Publicar</h3></div>
+        <ol>
+          <li>Haz clic en el botón azul <b>«Publicar cambios…»</b>, arriba a la derecha.</li>
+          <li>Escribe el <b>resumen de edición</b>: en una línea, qué hiciste y por qué.</li>
+          <li>Haz clic otra vez en <b>«Publicar cambios»</b>.</li>
+        </ol>
+        <div class="mock" role="img" aria-label="Esquema: caja del resumen de edición">
+          <p class="mock-cap">Esquema · resumen de edición</p>
+          <div class="summary">
+            <span class="input">Agrego párrafo sobre la prohibición de 1948 con fuente académica</span>
+            <span class="btn" style="align-self:flex-start">Publicar cambios</span>
+          </div>
+        </div>
+        <p class="say">Desde este momento es público: cualquiera en el mundo lo puede leer o cambiar.</p>
+        <label class="check"><input type="checkbox" id="c5" data-step="5"> Hecho</label>
+      </li>
+
+      <li class="step" id="paso-6">
+        <div class="step-head"><span class="num">6</span><h3>Sacar la prueba de tu edición</h3></div>
+        <ol>
+          <li>Arriba del artículo, haz clic en <b>«Ver historial»</b>.</li>
+          <li>Busca la línea con <b>tu nombre de usuario</b> y la hora de tu edición.</li>
+          <li>En esa línea, haz clic en <b>«ant»</b>: compara tu versión con la anterior. («act» la compara con la versión actual.)</li>
+          <li>Verás el antes y el después lado a lado. <b>Copia el enlace de la barra del navegador.</b> Ese enlace es lo que se entrega.</li>
+        </ol>
+        <div class="mock" role="img" aria-label="Esquema: una línea del historial con el enlace ant resaltado, y una comparación de antes y después">
+          <p class="mock-cap">Esquema · una línea del historial</p>
+          <div class="hist"><span class="lk">act</span> | <span class="lk hl">ant</span>&nbsp;&nbsp;18:40 9 nov 2026&nbsp;&nbsp;<span class="lk">TuUsuario</span>&nbsp;&nbsp;(+412)&nbsp;&nbsp;(Agrego párrafo con fuente académica)</div>
+          <div class="diff">
+            <div class="old"><b>Antes</b>Texto original del párrafo.</div>
+            <div class="new"><b>Después</b>Texto original del párrafo, ampliado con una frase nueva.<sup class="ref">[1]</sup></div>
+          </div>
+        </div>
+        <label class="check"><input type="checkbox" id="c6" data-step="6"> Hecho</label>
+      </li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="pruebas">
+    <h2 id="pruebas">¿Te da miedo dañar el artículo?</h2>
+    <p>Practica primero en tu página de pruebas. Escribe esto en el buscador de Wikipedia, cambiando <i>TuNombre</i> por tu usuario, y crea la página:</p>
+    <div class="copyrow">
+      <code id="taller">Usuario:TuNombre/Taller</code>
+      <button type="button" id="copybtn">Copiar</button>
+      <span class="copied" id="copied" hidden>Copiado</span>
+    </div>
+    <p>Escribe y cita ahí con calma. Cuando esté listo, copia el texto al artículo.</p>
+  </section>
+
+  <section aria-labelledby="problemas">
+    <h2 id="problemas">Si algo pasa</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th scope="col">Pasa esto</th><th scope="col">Haz esto</th></tr></thead>
+        <tbody>
+          <tr><td>Me revirtieron la edición</td><td>Lee el resumen de quien la deshizo y escribe en la página de Discusión. No la vuelvas a poner sin hablar.</td></tr>
+          <tr><td>No encuentro fuente para lo que quiero escribir</td><td>Entonces no lo escribas. Busca otra parte del artículo que sí puedas respaldar.</td></tr>
+          <tr><td>El artículo está protegido</td><td>Propón el cambio en la página de Discusión.</td></tr>
+          <tr><td>La cita automática no funciona</td><td>Usa la pestaña «Manual» de «Citar».</td></tr>
+          <tr><td>Llevo un rato sin escribir nada</td><td>Empieza por la mejora menor y sigue desde ahí.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="entrega">
+    <div class="deliver">
+      <h2 id="entrega">Entrega 7</h2>
+      <p>Por correo, con el asunto <code>P7_Apellido_Nombre</code>:</p>
+      <ol>
+        <li>El enlace a la comparación («ant») de cada edición.</li>
+        <li>El enlace al artículo y a tu página de usuario.</li>
+        <li>Un párrafo de 200–250 palabras: qué cambiaste, con qué fuentes, si alguien modificó tu edición y qué te enseñó escribir con las reglas de Wikipedia.</li>
+      </ol>
+      <p class="date">Domingo 15 de noviembre, 11:59 p. m.</p>
+      <p>Las entregas tardías se califican sobre 4.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>Tres reglas para todo el taller: verificabilidad (toda frase con fuente fiable), nada de investigación propia y punto de vista neutral. Historia Digital 2026-2, Universidad Nacional de Colombia.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var KEY = 'hd-s11-pasos';
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('.check input'));
+  var fill = document.getElementById('barfill');
+  var count = document.getElementById('count');
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+  function render(){
+    var n = 0;
+    boxes.forEach(function(b){
+      var li = b.closest('.step');
+      if (b.checked) { n++; li.classList.add('done'); } else { li.classList.remove('done'); }
+    });
+    fill.style.width = (n / boxes.length * 100) + '%';
+    count.textContent = n === boxes.length ? '¡Listo! 6 de 6 pasos' : n + ' de ' + boxes.length + ' pasos';
+  }
+  boxes.forEach(function(b){
+    if (saved[b.id]) b.checked = true;
+    b.addEventListener('change', function(){
+      saved[b.id] = b.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+      render();
+    });
+  });
+  render();
+
+  var btn = document.getElementById('copybtn');
+  var code = document.getElementById('taller');
+  var ok = document.getElementById('copied');
+  btn.addEventListener('click', function(){
+    var text = code.textContent;
+    function selectIt(){
+      var r = document.createRange(); r.selectNodeContents(code);
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    }
+    try {
+      navigator.clipboard.writeText(text).then(function(){
+        ok.hidden = false; setTimeout(function(){ ok.hidden = true; }, 1800);
+      }, selectIt);
+    } catch (e) { selectIt(); }
+  });
+})();
+</script>
+
+</body>
+</html>
